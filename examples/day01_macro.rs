@@ -15,10 +15,12 @@ mod day01 {
         input.lines().map(|l| scan!("{}" <- l).unwrap()).collect()
     }
 
+    #[allow(clippy::ptr_arg)]
     pub fn part_1(input: &Vec<i32>) -> i32 {
         find_sum(input, 2).iter().product::<i32>()
     }
 
+    #[allow(clippy::ptr_arg)]
     pub fn part_2(input: &Vec<i32>) -> i32 {
         find_sum(input, 3).iter().product::<i32>()
     }

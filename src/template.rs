@@ -1,14 +1,16 @@
-type Data = i32;
+type Data = Vec<i32>;
 
-pub fn parse(input: &str) -> Vec<Data> {
+pub fn parse(input: &str) -> Data {
     input.lines().map(|l| l.parse().unwrap()).collect()
 }
 
-pub fn part_1(input: &[Data]) -> usize {
+#[allow(clippy::ptr_arg)]
+pub fn part_1(input: &Data) -> usize {
     0
 }
 
-pub fn part_2(input: &[Data]) -> usize {
+#[allow(clippy::ptr_arg)]
+pub fn part_2(input: &Data) -> usize {
     0
 }
 

@@ -58,7 +58,7 @@ pub fn run<ParserOutput, SolutionOutput: Display>(
         let answer = solution(&input);
         let elapsed = start.elapsed();
 
-        print_with_duration(&id, Some(&format!("{}", answer)), elapsed);
+        print_with_duration(id, Some(&format!("{}", answer)), elapsed);
     }
 }
 
