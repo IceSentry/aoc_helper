@@ -1,0 +1,14 @@
+[package]
+name = "aoc_helper"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+ureq = { version = "1.5.2", features = ["charset"] }
+clap = "3.0.0-beta.2"
+criterion = "0.3.3"
+colored = "2.0.0"
+anyhow = "1.0.34"
+dotenv = "0.15"
