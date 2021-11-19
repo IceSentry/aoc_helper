@@ -138,7 +138,8 @@ macro_rules! main {
         $( ; )?
     ) => {
         fn main() {
-            if let Some((data, module_name, opt)) = $crate::main_setup($year, &[$(stringify!($day)),*]) {
+            let setup = $crate::main_setup($year, &[$(stringify!($day)),*]);
+            if let Some((data, module_name, opt)) = setup {
                 let input = data.as_str();
                 $(
                     if module_name == stringify!($day) {
