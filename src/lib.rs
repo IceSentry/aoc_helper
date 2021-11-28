@@ -65,11 +65,11 @@ pub fn main_setup(year: u16, days: &[&str]) -> Option<(String, String, Opt)> {
             module_name,
             days.join(", "),
         );
+        None
+    } else {
+        println!("Day {:0>2}", day);
+        Some((data, module_name, opt))
     }
-
-    println!("Day {:0>2}", day);
-
-    Some((data, module_name, opt))
 }
 
 #[macro_export]
@@ -78,7 +78,7 @@ macro_rules! main {
         use $crate::anyhow::Result;
 
         fn main() -> Result<()> {
-            $crate::main_setup($year, &vec![]);
+            $crate::main_setup($year, &[]);
             Ok(())
         }
     };
