@@ -2,6 +2,8 @@
 
 This is a small crate that has a few helper utilities to simplify solving advent of code puzzles.
 
+Highly inspired by <https://github.com/remi-dupre/aoc>
+
 ## Usage Guide
 
 ### Macro
