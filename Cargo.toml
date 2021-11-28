@@ -9,9 +9,10 @@ edition = "2021"
 ureq = { version = "2.3.1", features = ["charset"] }
 criterion = "0.3.3"
 colored = "2.0.0"
-anyhow = "1.0.34"
+anyhow = "1.0.49"
 dotenv = "0.15"
+structopt = "0.3.25"
+
+[dev-dependencies]
 itertools = "0.10.1"
 serde_scan = "0.4.1"
-indoc = "1.0.3"
-structopt = "0.3.25"

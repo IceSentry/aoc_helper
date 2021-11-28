@@ -31,9 +31,10 @@ mod day01 {
 fn main() {
     dotenv::dotenv().expect("Failed to load .env");
     let input = aoc_helper::input::get_input(2020, 1).expect("Failed to get input");
-    aoc_helper::run(
+    let answer = aoc_helper::run(
         &input,
         day01::parse,
         vec![("part_1", day01::part_1), ("part_2", day01::part_2)],
-    )
+    );
+    // aoc_helper::input::submit(2020, 1, 1, &answer.unwrap().to_string());
 }
