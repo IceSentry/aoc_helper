@@ -77,6 +77,16 @@ pub fn main_setup(year: u16, days: &[&str]) -> Option<(String, String, Opt)> {
 macro_rules! main {
     (
         year : $year: expr;
+    ) => {
+        use $crate::anyhow::{Result, bail};
+
+        fn main() -> Result<()> {
+            $crate::main_setup($year, vec![]);
+            Ok(())
+        }
+    };
+    (
+        year : $year: expr;
         $( $day: ident $( : $parser: ident )? => $( $solution: ident ),+ );+
         $( ; )?
     ) => {
