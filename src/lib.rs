@@ -19,7 +19,6 @@ pub const TEMPLATE: &str = include_str!("./template.rs");
 const DISPLAY_WIDTH: usize = 40;
 
 type ParserFn<T> = fn(input: &str) -> T;
-type SolutionFn<Input, Output> = fn(input: &Input) -> Output;
 
 #[derive(Debug, StructOpt)]
 #[structopt(name = "aoc_helper")]
@@ -75,13 +74,11 @@ pub fn main_setup(year: u16, days: &[&str]) -> Option<(String, String, Opt)> {
 
 #[macro_export]
 macro_rules! main {
-    (
-        year : $year: expr;
-    ) => {
-        use $crate::anyhow::{Result, bail};
+    (year : $year: expr;) => {
+        use $crate::anyhow::Result;
 
         fn main() -> Result<()> {
-            $crate::main_setup($year, vec![]);
+            $crate::main_setup($year, &vec![]);
             Ok(())
         }
     };
@@ -92,37 +89,30 @@ macro_rules! main {
     ) => {
         use $crate::anyhow::{Result, bail};
 
+        $( mod $day; )+
+
         fn main() -> Result<()> {
             if let Some((data, module_name, opt)) = $crate::main_setup($year, &[$(stringify!($day)),*]) {
                 let input = data.as_str();
+                let year = stringify!($year);
                 $(
                     if module_name == stringify!($day) {
+                        let day = stringify!($day);
+                        let parser = $( $day::$parser )?;
+                        let solutions: Vec<(&str, Box<dyn Fn(&_) -> _>)> = vec![$((stringify!($solution), Box::new($day::$solution)),)*];
+
                         if opt.bench {
-                            $crate::bench(
-                                stringify!($year),
-                                stringify!($day),
-                                input,
-                                $( $day::$parser )?,
-                                vec![$((stringify!($solution), $day::$solution),)*]
-                            );
-                        } else if opt.submit {
-                            let answer = $crate::run(
-                                input,
-                                $( $day::$parser )?,
-                                vec![$((stringify!($solution), $day::$solution),)*]
-                            );
-                            $crate::input::submit(
-                                stringify!($year).parse()?,
-                                opt.day.parse()?,
-                                1,
-                                &answer.expect("You need a valid solution to submit an answer").to_string())
-                            .expect("Failed to submit answer!");
+                            $crate::bench(year, day, input, parser, &solutions);
                         } else {
-                            $crate::run(
-                                input,
-                                $( $day::$parser )?,
-                                vec![$((stringify!($solution), $day::$solution),)*]
-                            );
+                            let answer = $crate::run(input, parser, &solutions);
+                            if opt.submit {
+                                $crate::input::submit(
+                                    year.parse()?,
+                                    opt.day.parse()?,
+                                    1,
+                                    &answer.expect("You need a valid solution to submit an answer").to_string())
+                                .expect("Failed to submit answer!");
+                            }
                         }
                     }
                 )+
@@ -154,11 +144,14 @@ pub fn print_with_duration(line: &str, output: Option<&str>, duration: Duration)
     }
 }
 
-pub fn run<ParserOutput, SolutionOutput: Display>(
+pub fn run<ParserOutput, SolutionOutput>(
     input: &str,
-    parser: ParserFn<ParserOutput>,
-    solutions: Vec<(&str, SolutionFn<ParserOutput, SolutionOutput>)>,
-) -> Option<SolutionOutput> {
+    parser: fn(&str) -> ParserOutput,
+    solutions: &[(&str, Box<dyn Fn(&ParserOutput) -> SolutionOutput>)],
+) -> Option<SolutionOutput>
+where
+    SolutionOutput: Display,
+{
     let start = Instant::now();
     let input = parser(input);
     let elapsed = start.elapsed();
@@ -183,7 +176,7 @@ pub fn bench<ParserOutput, SolutionOutput: Display>(
     day: &str,
     data: &str,
     parser: ParserFn<ParserOutput>,
-    solutions: Vec<(&str, SolutionFn<ParserOutput, SolutionOutput>)>,
+    solutions: &[(&str, Box<dyn Fn(&ParserOutput) -> SolutionOutput>)],
 ) {
     let mut criterion = Criterion::default().with_output_color(true).without_plots();
     let mut group = criterion.benchmark_group(format!("{}-{:0>2}", year, day));
@@ -197,7 +190,7 @@ pub fn bench<ParserOutput, SolutionOutput: Display>(
     let input = parser(data);
 
     for (id, solution) in solutions {
-        group.bench_with_input(id, &input, |b, i| {
+        group.bench_with_input(*id, &input, |b, i| {
             b.iter_batched(|| i, solution, BatchSize::SmallInput)
         });
     }
