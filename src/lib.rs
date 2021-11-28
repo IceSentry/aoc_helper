@@ -46,17 +46,17 @@ pub fn main_setup(year: u16, days: &[&str]) -> Option<(String, String, Opt)> {
     let opt = Opt::from_args();
     let module_name = format!("day{:0>2}", opt.day);
     let day: u8 = opt.day.parse().expect("Day is not a number");
-    let data = input::get_input(year, day).expect("Failed to get input data");
-
-    if opt.download {
-        return None;
-    }
 
     if opt.init {
-        let filename = format!("./src/day{}.rs", opt.day);
+        let filename = format!("./src/day{:0>2}.rs", opt.day);
         let file_path = Path::new(&filename);
         std::fs::write(file_path, TEMPLATE).expect("Failed to write file");
         println!("new file created at {}", file_path.display());
+    }
+
+    let data = input::get_input(year, day).expect("Failed to get input data");
+    if opt.download {
+        return None;
     }
 
     if !days.contains(&module_name.as_str()) {
