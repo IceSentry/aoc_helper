@@ -36,7 +36,7 @@ pub fn download_input(file_path: &Path, year: u16, day: u8) -> Result<()> {
     }
 }
 
-pub fn submit(year: usize, day: usize, level: usize, answer: &str) -> Result<()> {
+pub fn submit(year: usize, day: u8, level: usize, answer: &str) -> Result<()> {
     println!("Sending answer...");
 
     let response = ureq::post(&format!(

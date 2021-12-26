@@ -1,7 +1,9 @@
-use std::fmt::Display;
-use std::path::Path;
-use std::time::Duration;
-use std::{cmp::min, time::Instant};
+use std::{
+    cmp::min,
+    fmt::Display,
+    path::Path,
+    time::{Duration, Instant},
+};
 
 use colored::*;
 
@@ -24,7 +26,8 @@ type ParserFn<T> = fn(input: &str) -> T;
 #[structopt(name = "aoc_helper")]
 pub struct Opt {
     /// The selected day to run
-    pub day: String,
+    /// If the day is not specified, it will run all available days
+    pub day: Option<String>,
     /// Run criterion benchmark on each solutions for the selected day
     #[structopt(short, long)]
     pub bench: bool,
@@ -41,34 +44,42 @@ pub struct Opt {
     pub submit: bool,
 }
 
-pub fn main_setup(year: u16, days: &[&str]) -> Option<(String, String, Opt)> {
+pub fn main_setup(year: u16, days: &[&str]) -> Option<(String, String, Opt, u8)> {
     dotenv::dotenv().expect("Failed to load .env");
     let opt = Opt::from_args();
-    let module_name = format!("day{:0>2}", opt.day);
-    let day: u8 = opt.day.parse().expect("Day is not a number");
+    match opt.day {
+        Some(ref day) => {
+            let module_name = format!("day{:0>2}", day);
+            let day: u8 = day.parse().expect("Day is not a number");
 
-    if opt.init {
-        let filename = format!("./src/day{:0>2}.rs", opt.day);
-        let file_path = Path::new(&filename);
-        std::fs::write(file_path, TEMPLATE).expect("Failed to write file");
-        println!("new file created at {}", file_path.display());
-    }
+            if opt.init {
+                let filename = format!("./src/{}.rs", module_name);
+                let file_path = Path::new(&filename);
+                std::fs::write(file_path, TEMPLATE).expect("Failed to write file");
+                println!("new file created at {}", file_path.display());
+            }
 
-    let data = input::get_input(year, day).expect("Failed to get input data");
-    if opt.download {
-        return None;
-    }
+            let data = input::get_input(year, day).expect("Failed to get input data");
+            if opt.download {
+                return None;
+            }
 
-    if !days.contains(&module_name.as_str()) {
-        eprintln!(
-            "Module `{}` was not registered, modules available are: {}",
-            module_name,
-            days.join(", "),
-        );
-        None
-    } else {
-        println!("Day {:0>2}", day);
-        Some((data, module_name, opt))
+            if !days.contains(&module_name.as_str()) {
+                eprintln!(
+                    "Module `{}` was not registered, modules available are: {}",
+                    module_name,
+                    days.join(", "),
+                );
+                None
+            } else {
+                println!("Day {:0>2}", day);
+                Some((data, module_name, opt, day))
+            }
+        }
+        None => {
+            println!("No day specified. Running all available days.");
+            None
+        }
     }
 }
 
@@ -92,23 +103,23 @@ macro_rules! main {
         $( mod $day; )+
 
         fn main() -> Result<()> {
-            if let Some((data, module_name, opt)) = $crate::main_setup($year, &[$(stringify!($day)),*]) {
-                let input = data.as_str();
-                let year = stringify!($year);
+            let year = stringify!($year);
+            if let Some((data, module_name, opt, day_value)) = $crate::main_setup($year, &[$(stringify!($day)),*]) {
                 $(
-                    if module_name == stringify!($day) {
-                        let day = stringify!($day);
+                    let day = stringify!($day);
+                    if module_name == day {
                         let parser = $( $day::$parser )?;
                         let solutions: Vec<(&str, Box<dyn Fn(&_) -> _>)> = vec![$((stringify!($solution), Box::new($day::$solution)),)*];
+                        let input = data.as_str();
 
                         if opt.bench {
                             $crate::bench(year, day, input, parser, &solutions);
                         } else {
-                            let answer = $crate::run(input, parser, &solutions);
+                            let answer = $crate::run_single_day(input, parser, &solutions);
                             if opt.submit {
                                 $crate::input::submit(
                                     year.parse()?,
-                                    opt.day.parse()?,
+                                    day_value,
                                     1,
                                     &answer.expect("You need a valid solution to submit an answer").to_string())
                                 .expect("Failed to submit answer!");
@@ -116,6 +127,49 @@ macro_rules! main {
                         }
                     }
                 )+
+            } else {
+                let mut total_parser = std::time::Duration::new(0, 0);
+                let mut total = std::time::Duration::new(0, 0);
+                println!(
+                    "{:<6} | {:<10} | {:<10} | {:<10} | {:<10}",
+                    "day", "parser", "part_1", "part_2", "..."
+                );
+                println!("---------------------------------------------------");
+                $(
+                    let day = stringify!($day);
+                    print!("{:<6} |", day);
+                    let solutions: Vec<Box<dyn Fn(&_) -> _>> = vec![$(Box::new($day::$solution),)*];
+                    let parser = $( $day::$parser )?;
+                    let input = $crate::input::get_input(
+                        year.parse::<u16>().expect("year shoud be a number"),
+                        day.split_once("day")
+                            .and_then(|(_, day)| day.parse::<u8>().ok())
+                            .expect("day shoud be a number"),
+                    )
+                    .expect("Failed to get input data");
+
+                    let start = std::time::Instant::now();
+                    let input = parser(input.as_str());
+                    let elapsed = start.elapsed();
+                    total_parser += elapsed;
+                    print!(" {:<10} |", format!("{:.2?}", elapsed));
+
+                    for (i, solution) in solutions.iter().enumerate() {
+                        let start = std::time::Instant::now();
+                        solution(&input);
+                        let elapsed = start.elapsed();
+                        print!(" {:<10} |", format!("{:.2?}", elapsed));
+                        if i == 0 || i == 1 {
+                            total += elapsed;
+                        }
+                    }
+
+                    println!();
+                )+
+                println!();
+                println!("total parser: {}", format!("{:.2?}", total_parser));
+                println!("total without parser: {}", format!("{:.2?}", total));
+                println!("total: {}", format!("{:.2?}", total_parser + total));
             }
             Ok(())
         }
@@ -144,7 +198,7 @@ pub fn print_with_duration(line: &str, output: Option<&str>, duration: Duration)
     }
 }
 
-pub fn run<ParserOutput, SolutionOutput>(
+pub fn run_single_day<ParserOutput, SolutionOutput>(
     input: &str,
     parser: fn(&str) -> ParserOutput,
     solutions: &[(&str, Box<dyn Fn(&ParserOutput) -> SolutionOutput>)],
