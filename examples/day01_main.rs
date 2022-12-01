@@ -1,5 +1,6 @@
 mod day01;
 
+#[allow(clippy::type_complexity)]
 fn main() {
     dotenv::dotenv().expect("Failed to load .env");
     let input = aoc_helper::input::get_input(2020, 1).expect("Failed to get input");
@@ -7,6 +8,6 @@ fn main() {
         ("part_1", Box::new(day01::part_1)),
         ("part_2", Box::new(day01::part_2)),
     ];
-    let _answer = aoc_helper::run(&input, day01::parse, &solutions);
+    let _answer = aoc_helper::run_single_day(&input, day01::parse, &solutions);
     // aoc_helper::input::submit(2020, 1, 1, &answer.unwrap().to_string());
 }
