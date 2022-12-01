@@ -8,10 +8,7 @@ use std::{
 use colored::*;
 
 pub use anyhow;
-use colored;
-use criterion;
 use criterion::{BatchSize, Criterion};
-use dotenv;
 use structopt::StructOpt;
 
 pub mod input;
@@ -198,6 +195,7 @@ pub fn print_with_duration(line: &str, output: Option<&str>, duration: Duration)
     }
 }
 
+#[allow(clippy::type_complexity)]
 pub fn run_single_day<ParserOutput, SolutionOutput>(
     input: &str,
     parser: fn(&str) -> ParserOutput,
@@ -225,6 +223,7 @@ where
     output
 }
 
+#[allow(clippy::type_complexity)]
 pub fn bench<ParserOutput, SolutionOutput: Display>(
     year: &str,
     day: &str,

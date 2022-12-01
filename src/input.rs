@@ -7,7 +7,7 @@ pub fn get_input(year: u16, day: u8) -> Result<String> {
     if !file_path.exists() {
         download_input(file_path, year, day)?;
     }
-    fs::read_to_string(&file_path).context("Failed to read input file")
+    fs::read_to_string(file_path).context("Failed to read input file")
 }
 
 pub fn download_input(file_path: &Path, year: u16, day: u8) -> Result<()> {
@@ -20,6 +20,7 @@ pub fn download_input(file_path: &Path, year: u16, day: u8) -> Result<()> {
         year, day
     ))
     .set("COOKIE", &format!("session={}", session))
+    .set("User-Agent", "https://github.com/IceSentry/aoc_helper")
     .call();
 
     match response {

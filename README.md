@@ -15,8 +15,7 @@ The intended usage is to use the provided `aoc_helper::main!` macro. This will s
 aoc_helper::main! {
     // The year needs to be a number
     year: 2020;
-    // Each line is a day, the name of the day is also the name of
-    // the module containing the related functions.
+    // Each line is a day, the name of the day is also the name of the module containing the related functions.
     //
     // The function before the => is the function that will receive the raw string input and parse it to something easier to use
     //
@@ -50,3 +49,8 @@ ARGS:
 ### Helpers
 
 The crates also exposes a few helpers if you prefer doing the cli part yourself.
+
+### To get a valid token
+
+* Firefox: "Storage" tab, Cookies, and copy the "Value" field of the session cookie.
+* Google Chrome / Chromium: "Application" tab, Cookies, and copy the "Value" field of the session cookie.
