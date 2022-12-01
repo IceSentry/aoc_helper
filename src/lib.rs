@@ -42,7 +42,7 @@ pub struct Opt {
 }
 
 pub fn main_setup(year: u16, days: &[&str]) -> Option<(String, String, Opt, u8)> {
-    dotenv::dotenv().expect("Failed to load .env");
+    dotenvy::dotenv().expect("Failed to load .env");
     let opt = Opt::from_args();
     match opt.day {
         Some(ref day) => {
