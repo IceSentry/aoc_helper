@@ -1,4 +1,4 @@
-type Data = Vec<i32>;
+type Data = Vec<usize>;
 
 pub fn parse(input: &str) -> Data {
     input.lines().map(|l| l.parse().unwrap()).collect()

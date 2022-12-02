@@ -2,6 +2,7 @@ use std::{
     cmp::min,
     fmt::Display,
     path::Path,
+    process::exit,
     time::{Duration, Instant},
 };
 
@@ -44,39 +45,39 @@ pub struct Opt {
 pub fn main_setup(year: u16, days: &[&str]) -> Option<(String, String, Opt, u8)> {
     dotenvy::dotenv().expect("Failed to load .env");
     let opt = Opt::from_args();
-    match opt.day {
-        Some(ref day) => {
-            let module_name = format!("day{:0>2}", day);
-            let day: u8 = day.parse().expect("Day is not a number");
 
-            if opt.init {
-                let filename = format!("./src/{}.rs", module_name);
-                let file_path = Path::new(&filename);
-                std::fs::write(file_path, TEMPLATE).expect("Failed to write file");
-                println!("new file created at {}", file_path.display());
-            }
+    let Some(ref day) = opt.day else {
+        println!("No day specified. Running all available days.");
+        return None;
+    };
 
-            let data = input::get_input(year, day).expect("Failed to get input data");
-            if opt.download {
-                return None;
-            }
+    let module_name = format!("day{:0>2}", day);
+    let day: u8 = day.parse().expect("Day is not a number");
 
-            if !days.contains(&module_name.as_str()) {
-                eprintln!(
-                    "Module `{}` was not registered, modules available are: {}",
-                    module_name,
-                    days.join(", "),
-                );
-                None
-            } else {
-                println!("Day {:0>2}", day);
-                Some((data, module_name, opt, day))
-            }
-        }
-        None => {
-            println!("No day specified. Running all available days.");
-            None
-        }
+    if opt.init {
+        let filename = format!("./src/{}.rs", module_name);
+        let file_path = Path::new(&filename);
+        std::fs::write(file_path, TEMPLATE).expect("Failed to write file");
+        println!("new file created at {}", file_path.display());
+    }
+
+    let data = input::get_input(year, day).expect("Failed to get input data");
+    if opt.download {
+        println!("downloading");
+        // FIXME This is to avoid reaching the branch that runs all solutions
+        std::process::exit(0);
+    }
+
+    if !days.contains(&module_name.as_str()) {
+        eprintln!(
+            "Module `{}` was not registered, modules available are: {}",
+            module_name,
+            days.join(", "),
+        );
+        None
+    } else {
+        println!("Day {:0>2}", day);
+        Some((data, module_name, opt, day))
     }
 }
 
