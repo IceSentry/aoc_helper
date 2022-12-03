@@ -2,7 +2,6 @@ use std::{
     cmp::min,
     fmt::Display,
     path::Path,
-    process::exit,
     time::{Duration, Instant},
 };
 
@@ -62,7 +61,7 @@ pub fn main_setup(year: u16, days: &[&str]) -> Option<(String, String, Opt, u8)>
     }
 
     let data = input::get_input(year, day).expect("Failed to get input data");
-    if opt.download {
+    if opt.download || opt.init {
         println!("downloading");
         // FIXME This is to avoid reaching the branch that runs all solutions
         std::process::exit(0);
