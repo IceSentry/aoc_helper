@@ -7,7 +7,7 @@ use std::{
 use colored::*;
 
 pub use anyhow;
-use criterion::{BatchSize, Criterion};
+use criterion::{BatchSize, BenchmarkId, Criterion};
 
 pub mod input;
 
@@ -72,22 +72,25 @@ pub fn bench<ParserOutput, SolutionOutput: Display>(
     part_1: fn(&[ParserOutput]) -> SolutionOutput,
     part_2: fn(&[ParserOutput]) -> SolutionOutput,
 ) {
-    let mut criterion = Criterion::default().with_output_color(true).without_plots();
-    let mut group = criterion.benchmark_group("aoc");
+    let mut criterion = Criterion::default().with_output_color(true);
 
-    group.bench_with_input("parser", data, |b, _i| {
-        b.iter_with_large_drop(|| {
-            parser(data);
-        });
-    });
+    criterion.bench_with_input(
+        BenchmarkId::new("parser", ""),
+        &data.to_string(),
+        |b, _i| {
+            b.iter_with_large_drop(|| {
+                parser(data);
+            });
+        },
+    );
 
     let input = parser(data);
 
-    group.bench_with_input("part_1", &input, |b, i| {
+    criterion.bench_with_input(BenchmarkId::new("part_1", ""), &input, |b, i| {
         b.iter_batched(|| i, part_1, BatchSize::SmallInput)
     });
 
-    group.bench_with_input("part_2", &input, |b, i| {
+    criterion.bench_with_input(BenchmarkId::new("part_2", ""), &input, |b, i| {
         b.iter_batched(|| i, part_2, BatchSize::SmallInput)
     });
 }
