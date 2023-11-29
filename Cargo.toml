@@ -1,6 +1,6 @@
 [package]
 name = "aoc_helper"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 
 [dependencies]
@@ -9,9 +9,8 @@ criterion = "0.4.0"
 colored = "2.0.0"
 anyhow = "1.0.50"
 dotenvy = "0.15.6"
-structopt = "0.3.25"
 
 [dev-dependencies]
 indoc = "2.0.4"
-itertools = "0.10.1"
+itertools = "0.12.0"
 serde_scan = "0.4.1"
