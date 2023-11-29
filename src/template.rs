@@ -14,9 +14,7 @@ pub fn part_2(input: &Data) -> usize {
 
 #[cfg(test)]
 mod tests {
-    use indoc::indoc;
-
-    const INPUTS: &str = indoc! {"
+    const INPUTS: &str = indoc::indoc! {"
     "};
 
     #[test]

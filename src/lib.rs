@@ -106,7 +106,7 @@ macro_rules! main {
                     let day = stringify!($day);
                     if module_name == day {
                         let parser = $( $day::$parser )?;
-                        let solutions: Vec<(&str, Box<dyn Fn(&_) -> _>)> = vec![$((stringify!($solution), Box::new($day::$solution)),)*];
+                        let solutions: Vec<(&str, fn(&_) -> _)> = vec![$((stringify!($solution), $day::$solution),)*];
                         let input = data.as_str();
 
                         if opt.bench {
@@ -199,7 +199,7 @@ pub fn print_with_duration(line: &str, output: Option<&str>, duration: Duration)
 pub fn run_single_day<ParserOutput, SolutionOutput>(
     input: &str,
     parser: fn(&str) -> ParserOutput,
-    solutions: &[(&str, Box<dyn Fn(&ParserOutput) -> SolutionOutput>)],
+    solutions: &[(&str, fn(&ParserOutput) -> SolutionOutput)],
 ) -> Option<SolutionOutput>
 where
     SolutionOutput: Display,
@@ -229,7 +229,7 @@ pub fn bench<ParserOutput, SolutionOutput: Display>(
     day: &str,
     data: &str,
     parser: ParserFn<ParserOutput>,
-    solutions: &[(&str, Box<dyn Fn(&ParserOutput) -> SolutionOutput>)],
+    solutions: &[(&str, fn(&ParserOutput) -> SolutionOutput)],
 ) {
     let mut criterion = Criterion::default().with_output_color(true).without_plots();
     let mut group = criterion.benchmark_group(format!("{}-{:0>2}", year, day));
