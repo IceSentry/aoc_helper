@@ -1,14 +1,14 @@
-type Data = Vec<usize>;
+type Data = usize;
 
-pub fn parse(input: &str) -> Data {
+pub fn parse(input: &str) -> Vec<Data> {
     input.lines().map(|l| l.parse().unwrap()).collect()
 }
 
-pub fn part_1(input: &Data) -> usize {
+pub fn part_1(input: &[Data]) -> usize {
     0
 }
 
-pub fn part_2(input: &Data) -> usize {
+pub fn part_2(input: &[Data]) -> usize {
     0
 }
 

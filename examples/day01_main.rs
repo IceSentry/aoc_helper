@@ -1,10 +1,9 @@
 use itertools::Itertools;
 use serde_scan::scan;
 
-#[allow(clippy::type_complexity)]
 fn main() {
     dotenvy::dotenv().expect("Failed to load .env");
-    let input = aoc_helper::input::get_input(2020, 1).expect("Failed to get input");
+    let input = aoc_helper::get_input(2020, 1).expect("Failed to get input");
     aoc_helper::run_single_day(&input, parse, part_1, part_2);
     aoc_helper::bench(&input, parse, part_1, part_2);
 }
