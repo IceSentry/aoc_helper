@@ -1,14 +1,14 @@
 use itertools::Itertools;
-use serde_scan::scan;
 
 fn main() {
     dotenvy::dotenv().expect("Failed to load .env");
-    let input = aoc_helper::get_input(2020, 1).expect("Failed to get input");
+    let session_token = std::env::var("AOC_COOKIE_SESSION").unwrap();
+    let input = aoc_helper::get_input(&session_token, 2020, 1).expect("Failed to get input");
     let parsed_input = aoc_helper::run_parser(&input, parse);
     aoc_helper::run("part_1", || part_1(&parsed_input));
     aoc_helper::run("part_2", || part_2(&parsed_input));
 
-    // aoc_helper::bench_day(&input, parse, part_1, part_2);
+    aoc_helper::bench_day("day01", &input, parse, part_1, part_2);
 }
 
 fn find_sum(input: &[i32], n: usize) -> Vec<i32> {
@@ -21,7 +21,7 @@ fn find_sum(input: &[i32], n: usize) -> Vec<i32> {
 }
 
 fn parse(input: &str) -> Vec<i32> {
-    input.lines().map(|l| scan!("{}" <- l).unwrap()).collect()
+    input.lines().map(|l| l.parse().unwrap()).collect()
 }
 
 fn part_1(input: &[i32]) -> i32 {

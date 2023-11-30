@@ -72,14 +72,16 @@ pub fn run<F: Fn() -> O, O: Display>(label: &str, f: F) -> O {
 /// Parser time is not counted in solution time.
 #[allow(clippy::type_complexity)]
 pub fn bench_day<ParserOutput, SolutionOutput>(
+    label: &str,
     data: &str,
     parser: fn(input: &str) -> Vec<ParserOutput>,
     part_1: fn(&[ParserOutput]) -> SolutionOutput,
     part_2: fn(&[ParserOutput]) -> SolutionOutput,
 ) {
     let mut criterion = Criterion::default().with_output_color(true);
+    let mut group = criterion.benchmark_group(label);
 
-    criterion.bench_with_input(
+    group.bench_with_input(
         BenchmarkId::new("parser", ""),
         &data.to_string(),
         |b, _i| {
@@ -91,11 +93,11 @@ pub fn bench_day<ParserOutput, SolutionOutput>(
 
     let input = parser(data);
 
-    criterion.bench_with_input(BenchmarkId::new("part_1", ""), &input, |b, i| {
+    group.bench_with_input(BenchmarkId::new("part_1", ""), &input, |b, i| {
         b.iter_batched(|| i, part_1, BatchSize::SmallInput)
     });
 
-    criterion.bench_with_input(BenchmarkId::new("part_2", ""), &input, |b, i| {
+    group.bench_with_input(BenchmarkId::new("part_2", ""), &input, |b, i| {
         b.iter_batched(|| i, part_2, BatchSize::SmallInput)
     });
 }
@@ -112,12 +114,12 @@ pub fn bench_solution<ParserOutput, SolutionOutput>(
 
 /// Gets the input data from the filesystem.
 /// If the input file doesn't already exist it will automatically download it.
-pub fn get_input(year: u16, day: u8) -> Result<String> {
+pub fn get_input(session_token: &str, year: u16, day: u8) -> Result<String> {
     let filename = format!("./inputs/{:02}.txt", day);
     let file_path = Path::new(&filename);
     if !file_path.exists() {
         println!("Downloading inputs for year: {year} day: {day}");
-        let input = download_input(year, day)?;
+        let input = download_input(session_token, year, day)?;
         fs::create_dir_all("./inputs/")?;
         fs::write(file_path, input)?;
         println!("Input downloaded to {}", file_path.display());
@@ -125,13 +127,12 @@ pub fn get_input(year: u16, day: u8) -> Result<String> {
     fs::read_to_string(file_path).context("Failed to read input file")
 }
 
-pub fn download_input(year: u16, day: u8) -> Result<String> {
-    let session = std::env::var("AOC_COOKIE_SESSION")?;
+pub fn download_input(session_token: &str, year: u16, day: u8) -> Result<String> {
     let response = ureq::get(&format!(
         "https://adventofcode.com/{}/day/{}/input",
         year, day
     ))
-    .set("COOKIE", &format!("session={session}"))
+    .set("COOKIE", &format!("session={session_token}"))
     .set("User-Agent", "https://github.com/IceSentry/aoc_helper")
     .call();
 
