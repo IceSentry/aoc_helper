@@ -4,11 +4,13 @@ fn main() {
     dotenvy::dotenv().expect("Failed to load .env");
     let session_token = std::env::var("AOC_COOKIE_SESSION").unwrap();
     let input = aoc_helper::get_input(&session_token, 2020, 1).expect("Failed to get input");
-    let parsed_input = aoc_helper::run_parser(&input, parse);
-    aoc_helper::run("part_1", || part_1(&parsed_input));
-    aoc_helper::run("part_2", || part_2(&parsed_input));
+    let parsed_input = aoc_helper::run_parser(parse, &input);
+    aoc_helper::run_solution("part_1", part_1, &parsed_input);
+    aoc_helper::run_solution("part_2", part_2, &parsed_input);
 
-    aoc_helper::bench_day("day01", &input, parse, part_1, part_2);
+    // aoc_helper::bench_parser("day01/parser", input, parse);
+    // aoc_helper::bench_solution("day01/part_1", part_1, &parsed_input);
+    // aoc_helper::bench_solution("day01/part_2", part_2, &parsed_input);
 }
 
 fn find_sum(input: &[i32], n: usize) -> Vec<i32> {

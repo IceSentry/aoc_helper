@@ -31,14 +31,14 @@ pub fn run_day<ParserOutput, SolutionOutput: Display>(
     part_1: fn(&[ParserOutput]) -> SolutionOutput,
     part_2: fn(&[ParserOutput]) -> SolutionOutput,
 ) {
-    let parsed_input = run_parser(input, parser);
-    run_solution("part_1", &parsed_input, part_1);
-    run_solution("part_2", &parsed_input, part_2);
+    let parsed_input = run_parser(parser, input);
+    run_solution("part_1", part_1, &parsed_input);
+    run_solution("part_2", part_2, &parsed_input);
 }
 
 pub fn run_parser<ParserOutput>(
-    input: &str,
     parser: fn(&str) -> Vec<ParserOutput>,
+    input: &str,
 ) -> Vec<ParserOutput> {
     let start = Instant::now();
     let parsed_input = parser(input);
@@ -50,8 +50,8 @@ pub fn run_parser<ParserOutput>(
 
 pub fn run_solution<ParserOutput, SolutionOutput: Display>(
     label: &str,
-    parsed_input: &[ParserOutput],
     solution: fn(&[ParserOutput]) -> SolutionOutput,
+    parsed_input: &[ParserOutput],
 ) {
     let start = Instant::now();
     let answer = solution(parsed_input);
@@ -102,12 +102,16 @@ pub fn bench_day<ParserOutput, SolutionOutput>(
     });
 }
 
-pub fn bench_solution<ParserOutput, SolutionOutput>(
-    parsed_input: Vec<ParserOutput>,
-    solution: fn(&[ParserOutput]) -> SolutionOutput,
-) {
+pub fn bench_parser<O>(label: &str, input: String, solution: fn(&str) -> O) {
     let mut criterion = Criterion::default().with_output_color(true);
-    criterion.bench_with_input(BenchmarkId::new("solution", ""), &parsed_input, |b, i| {
+    criterion.bench_with_input(BenchmarkId::new(label, ""), &input, |b, i| {
+        b.iter_batched(|| i, solution, BatchSize::SmallInput)
+    });
+}
+
+pub fn bench_solution<I, O>(label: &str, solution: fn(&[I]) -> O, input: &[I]) {
+    let mut criterion = Criterion::default().with_output_color(true);
+    criterion.bench_with_input(BenchmarkId::new(label, ""), &input, |b, i| {
         b.iter_batched(|| i, solution, BatchSize::SmallInput)
     });
 }
