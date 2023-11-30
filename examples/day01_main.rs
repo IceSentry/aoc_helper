@@ -4,8 +4,11 @@ use serde_scan::scan;
 fn main() {
     dotenvy::dotenv().expect("Failed to load .env");
     let input = aoc_helper::get_input(2020, 1).expect("Failed to get input");
-    aoc_helper::run_single_day(&input, parse, part_1, part_2);
-    aoc_helper::bench(&input, parse, part_1, part_2);
+    let parsed_input = aoc_helper::run_parser(&input, parse);
+    aoc_helper::run("part_1", || part_1(&parsed_input));
+    aoc_helper::run("part_2", || part_2(&parsed_input));
+
+    // aoc_helper::bench_day(&input, parse, part_1, part_2);
 }
 
 fn find_sum(input: &[i32], n: usize) -> Vec<i32> {

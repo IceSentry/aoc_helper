@@ -4,7 +4,7 @@ This is a small crate that has a few helper utilities to simplify solving advent
 
 ## Usage Guide
 
-Make sure you have a valid token stored in an env var named `COOKIE_SESSION`.
+Make sure you have a valid token stored in an env var named `AOC_COOKIE_SESSION`.
 
 ### To get a valid token
 
