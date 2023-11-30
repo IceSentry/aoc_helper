@@ -20,8 +20,8 @@ pub fn print_with_duration(label: &str, result: &str, duration: Duration) {
         return;
     }
 
-    let dots = ".".repeat(DISPLAY_WIDTH - label_duration.chars().count());
-    println!(" {} {}", dots.bright_black(), result.bold());
+    let dots = "-".repeat(DISPLAY_WIDTH - label_duration.chars().count());
+    println!(" {}> {}", dots.bright_black(), result.bold());
 }
 
 #[allow(clippy::type_complexity)]
